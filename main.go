@@ -8,6 +8,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/config"
 	"github.com/gophercloud/gophercloud/v2/openstack/config/clouds"
 	"github.com/rivo/tview"
+	"openstack-tui/model"
 	"os"
 )
 
@@ -37,9 +38,9 @@ func main() {
 	}
 
 	servers := getServers()
-	flex := initGrid(servers)
+	flex, table := initGrid(servers)
 
-	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
+	if err := app.SetRoot(flex, true).SetFocus(table).Run(); err != nil {
 		panic(err)
 	}
 }
@@ -76,25 +77,30 @@ func getServers() []servers.Server {
 	if err != nil {
 		panic(err)
 	}
-	servers, err := servers.ExtractServers(serversPages)
+	osServers, err := servers.ExtractServers(serversPages)
 	if err != nil {
 		panic(err)
 	}
 
-	return servers
+	return osServers
 }
 
-func initGrid(servers []servers.Server) *tview.Flex {
-	table := tview.NewTable().SetBorders(true)
+func initGrid(servers []servers.Server) (*tview.Flex, *tview.Table) {
+	table := tview.NewTable().SetSelectable(true, false)
+	table.SetBorder(true).
+		SetBorderPadding(0, 0, 0, 0).
+		SetTitle("Servers")
 
-	for index, server := range servers {
-		table.SetCell(index+1, 1, tview.NewTableCell(server.Name).SetTextColor(tview.Styles.PrimaryTextColor))
-	}
+	// Fill with the data
+	model.FillTable(table, model.ServerList{
+		Servers: servers,
+	})
 
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(tview.NewBox().SetBorder(true).SetTitle("Top"), 0, 1, false).
-			AddItem(table.SetBorder(true).SetTitle("List"), 0, 3, false).
+			AddItem(table, 0, 3, true).
 			AddItem(tview.NewBox().SetBorder(true).SetTitle("Bottom (3 rows)"), 3, 1, false), 0, 2, false)
-	return flex
+
+	return flex, table
 }
