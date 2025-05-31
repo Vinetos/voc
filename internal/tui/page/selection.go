@@ -11,30 +11,34 @@ import (
 type SelectionPage struct {
 }
 
-const ServerListPage = "server"
-const commandList = ServerListPage
+const SelectionListPage = "selection"
+
+var commandList = [...]string{ServerListPage}
 
 func (s SelectionPage) Description() Description {
 	return Description{
-		Name:    ServerListPage,
+		Name:    SelectionListPage,
 		Resize:  true,
-		Visible: false,
+		Visible: true,
 	}
 }
 
 func (s SelectionPage) Content(app *tview.Application, pages *tview.Pages, client *openstack.Client) tview.Primitive {
-	words := strings.Split(commandList, ",")
-
 	inputField := tview.NewInputField().
-		SetLabel("> ").
-		SetDoneFunc(func(key tcell.Key) {
-			pages.SwitchToPage(ResourceListPageName)
-		})
+		SetLabel("> ")
+
+	inputField.SetDoneFunc(func(key tcell.Key) {
+		pages.SwitchToPage(inputField.GetText())
+
+		// Reset input
+		inputField.SetText("")
+	})
+
 	inputField.SetAutocompleteFunc(func(currentText string) (entries []string) {
 		if len(currentText) == 0 {
 			return
 		}
-		for _, word := range words {
+		for _, word := range commandList {
 			wordLower := strings.ToLower(word)
 			currentTextLower := strings.ToLower(currentText)
 			if strings.HasPrefix(wordLower, currentTextLower) || levenshtein.ComputeDistance(wordLower, currentTextLower) <= 3 {
@@ -46,6 +50,7 @@ func (s SelectionPage) Content(app *tview.Application, pages *tview.Pages, clien
 		}
 		return
 	})
+
 	inputField.SetAutocompletedFunc(func(text string, index, source int) bool {
 		if source != tview.AutocompletedNavigate {
 			inputField.SetText(text)

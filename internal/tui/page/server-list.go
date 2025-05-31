@@ -8,20 +8,20 @@ import (
 	"openstack-tui/internal/tui"
 )
 
-type ResourceListPage struct {
+type ServerList struct {
 }
 
-const ResourceListPageName = "resource-list"
+const ServerListPage = "server"
 
-func (s ResourceListPage) Description() Description {
+func (s ServerList) Description() Description {
 	return Description{
-		Name:    ResourceListPageName,
+		Name:    ServerListPage,
 		Resize:  true,
-		Visible: true,
+		Visible: false,
 	}
 }
 
-func (s ResourceListPage) Content(app *tview.Application, pages *tview.Pages, client *openstack.Client) tview.Primitive {
+func (s ServerList) Content(app *tview.Application, pages *tview.Pages, client *openstack.Client) tview.Primitive {
 	table := tview.NewTable().SetSelectable(true, false)
 	table.SetBorder(true).
 		SetBorderPadding(0, 0, 0, 0).
@@ -42,7 +42,7 @@ func (s ResourceListPage) Content(app *tview.Application, pages *tview.Pages, cl
 
 	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Rune() == ':' {
-			pages.SwitchToPage(ServerListPage)
+			pages.SwitchToPage(SelectionListPage)
 		}
 		return event
 	})

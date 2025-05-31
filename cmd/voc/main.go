@@ -51,6 +51,8 @@ func main() {
 	for _, page := range pages {
 		tpages.AddPage(page.Description().Name, page.Content(app, tpages, osClient), page.Description().Resize, page.Description().Visible)
 	}
+	// Set default page
+	tpages.SwitchToPage(page.SelectionListPage)
 
 	if err := app.EnableMouse(true).SetRoot(tpages, true).SetFocus(tpages).Run(); err != nil {
 		panic(err)
