@@ -21,7 +21,8 @@ type CLI struct {
 var app = tview.NewApplication()
 var pages = []page.Page{
 	page.SelectionPage{},
-	page.ResourceListPage{},
+	page.ServerList{},
+	page.ImageListPage{},
 }
 
 func main() {

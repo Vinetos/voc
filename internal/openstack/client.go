@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack"
-	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/openstack/config"
 	"github.com/gophercloud/gophercloud/v2/openstack/config/clouds"
 )
@@ -13,10 +12,7 @@ type Client struct {
 	Provider        *gophercloud.ProviderClient
 	EndpointOptions gophercloud.EndpointOpts
 	computeClient   *ComputeClient
-}
-
-type ComputeClient struct {
-	osComputeClient *gophercloud.ServiceClient
+	glanceClient    *GlanceClient
 }
 
 func NewClientFromCloudConfig() (*Client, error) {
@@ -55,17 +51,14 @@ func (c *Client) GetComputeClient() *ComputeClient {
 	return c.computeClient
 }
 
-func (c *ComputeClient) GetAllServers() []servers.Server {
-	ctx := context.Background()
-	// use the computeClient
-	serversPages, err := servers.List(c.osComputeClient, servers.ListOpts{}).AllPages(ctx)
-	if err != nil {
-		panic(err)
-	}
-	osServers, err := servers.ExtractServers(serversPages)
-	if err != nil {
-		panic(err)
-	}
+func (c *Client) GetGlanceClient() *GlanceClient {
+	if c.glanceClient == nil {
+		client, err := openstack.NewComputeV2(c.Provider, c.EndpointOptions)
+		if err != nil {
+			panic(err)
+		}
 
-	return osServers
+		c.glanceClient = &GlanceClient{osGlanceClient: client}
+	}
+	return c.glanceClient
 }

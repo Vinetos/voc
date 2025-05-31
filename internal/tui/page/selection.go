@@ -13,7 +13,7 @@ type SelectionPage struct {
 
 const SelectionListPage = "selection"
 
-var commandList = [...]string{ServerListPage}
+var commandList = [...]string{ServerListPage, ImageListPageName}
 
 func (s SelectionPage) Description() Description {
 	return Description{
