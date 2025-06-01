@@ -4,4 +4,4 @@ VOC provides a terminal UI to interact with your OpenStack infrastructures. The 
 
 
 # Notes
-Very experimental, super opinionated, mostly an project to learn Go.
+Very experimental, super opinionated, mostly used to learn Go.

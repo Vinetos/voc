@@ -20,9 +20,9 @@ type CLI struct {
 
 var app = tview.NewApplication()
 var pages = []page.Page{
-	page.SelectionPage{},
 	page.ServerList{},
 	page.ImageListPage{},
+	page.MainPage{},
 }
 
 func main() {
@@ -53,7 +53,7 @@ func main() {
 		tpages.AddPage(page.Description().Name, page.Content(app, tpages, osClient), page.Description().Resize, page.Description().Visible)
 	}
 	// Set default page
-	tpages.SwitchToPage(page.SelectionListPage)
+	tpages.SwitchToPage(page.MainPagePage)
 
 	if err := app.EnableMouse(true).SetRoot(tpages, true).SetFocus(tpages).Run(); err != nil {
 		panic(err)
