@@ -8,7 +8,8 @@ import (
 )
 
 type Header struct {
-	App *tview.Application
+	App   *tview.Application
+	Pages *tview.Pages
 }
 
 func (h Header) Build(backFocus tview.Primitive) *tview.Flex {
@@ -28,7 +29,7 @@ func (h Header) Build(backFocus tview.Primitive) *tview.Flex {
 	topFlex.AddItem(contextInfo, 0, 1, false)
 
 	// Configure hideable prompt
-	cmdPrompt := selectionInputField(h.App, topFlex, backFocus)
+	cmdPrompt := h.selectionInputField(topFlex, backFocus)
 	// Open prompt to view data
 	topFlex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Rune() == ':' {
@@ -47,7 +48,7 @@ func (h Header) Build(backFocus tview.Primitive) *tview.Flex {
 
 var commandList = [...]string{"server", "image"}
 
-func selectionInputField(app *tview.Application, parent *tview.Flex, backFocus tview.Primitive) *tview.InputField {
+func (h Header) selectionInputField(parent *tview.Flex, backFocus tview.Primitive) *tview.InputField {
 	// Configure input field
 	inputField := tview.NewInputField()
 	inputField.SetLabel("> ")
@@ -55,11 +56,31 @@ func selectionInputField(app *tview.Application, parent *tview.Flex, backFocus t
 
 	// When existing, give back the focus to data table
 	inputField.SetDoneFunc(func(key tcell.Key) {
+		// Test if entry is a real page
+		isValid := false
+		pageName := ""
+		for _, word := range commandList {
+			wordLower := strings.ToLower(word)
+			currentTextLower := strings.ToLower(inputField.GetText())
+			if wordLower == currentTextLower {
+				isValid = true
+				pageName = currentTextLower
+				break
+			}
+
+		}
+		// Reset the input
 		inputField.SetText("")
 		// Hide the input field
 		parent.RemoveItem(inputField)
-		// Give back the focus to the main table
-		app.SetFocus(backFocus)
+
+		if !isValid {
+			// Give back the focus
+			h.App.SetFocus(backFocus)
+		} else {
+			// Switch to the asked page
+			h.Pages.SwitchToPage(pageName)
+		}
 	})
 
 	// Configure autocompletion

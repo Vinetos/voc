@@ -33,7 +33,8 @@ func (s MainPage) Content(app *tview.Application, pages *tview.Pages, client *op
 
 	// Configure Header component
 	header := component.Header{
-		App: app,
+		App:   app,
+		Pages: pages,
 	}.Build(table)
 
 	// Build the main page
