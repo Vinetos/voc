@@ -79,7 +79,8 @@ func (h Header) selectionInputField(parent *tview.Flex, backFocus tview.Primitiv
 			h.App.SetFocus(backFocus)
 		} else {
 			// Switch to the asked page
-			h.Pages.SwitchToPage(pageName)
+			page := h.Pages.SwitchToPage(pageName)
+			h.App.SetFocus(page)
 		}
 	})
 
