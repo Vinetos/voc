@@ -1,11 +1,13 @@
 package page
 
 import (
+	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"openstack-tui/internal/model"
 	"openstack-tui/internal/openstack"
 	"openstack-tui/internal/tui"
+	"openstack-tui/internal/tui/component"
 )
 
 type ServerList struct {
@@ -22,30 +24,41 @@ func (s ServerList) Description() Description {
 }
 
 func (s ServerList) Content(app *tview.Application, pages *tview.Pages, client *openstack.Client) tview.Primitive {
+	// Configure the main table
 	table := tview.NewTable().SetSelectable(true, false)
+	// Fix first raw as it contains headers
+	table.SetFixed(1, 0)
 	table.SetBorder(true).
-		SetBorderPadding(0, 0, 0, 0).
-		SetTitle("Servers")
+		SetBorderPadding(0, 0, 0, 0)
 
+	// Fill with the data
 	serverListModel := model.Server{
 		OSClient: client,
 	}
+	table.SetTitle(fmt.Sprintf("[blue]Servers[[red]%d[blue]]", len(serverListModel.RowData())))
 
-	// Fill with the data
 	tui.FillTable(table, serverListModel)
 
-	topFlex := tview.NewFlex().AddItem(tview.NewBox().SetBorder(true).SetTitle("Top"), 0, 1, false)
-	flex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(topFlex, 0, 1, false).
-		AddItem(table, 0, 3, true).
-		AddItem(tview.NewBox().SetBorder(true).SetTitle("Bottom (3 rows)"), 3, 1, false)
+	// Configure Header component
+	header := component.Header{
+		App:   app,
+		Pages: pages,
+	}.Build(table)
 
+	// Build the main page
+	flex := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(header, 0, 1, false).
+		AddItem(table, 0, 3, true)
+
+	// Open prompt to view data
 	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Rune() == ':' {
-			pages.SwitchToPage(SelectionListPage)
+			// Focus on header to trigger input prompt
+			if !header.HasFocus() {
+				app.SetFocus(header)
+			}
 		}
 		return event
 	})
-
 	return flex
 }

@@ -1,6 +1,7 @@
 package page
 
 import (
+	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"openstack-tui/internal/model"
@@ -35,6 +36,7 @@ func (s ImageListPage) Content(app *tview.Application, pages *tview.Pages, clien
 	listModel := model.Image{
 		OSClient: client,
 	}
+	table.SetTitle(fmt.Sprintf("[blue]Images[[red]%d[blue]]", len(listModel.RowData())))
 	tui.FillTable(table, listModel)
 
 	// Configure Header component
