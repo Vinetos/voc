@@ -15,15 +15,11 @@ type ImageListPage struct {
 
 const ImageListPageName = "image"
 
-func (s ImageListPage) Description() Description {
-	return Description{
-		Name:    ImageListPageName,
-		Resize:  true,
-		Visible: true,
-	}
+func (s ImageListPage) Name() string {
+	return ImageListPageName
 }
 
-func (s ImageListPage) Content(app *tview.Application, pages *tview.Pages, client *openstack.Client) tview.Primitive {
+func (s ImageListPage) Content(app *tview.Application, pages *tview.Pages, osc func() *openstack.Client) tview.Primitive {
 	// Configure the main table
 	table := tview.NewTable().SetSelectable(true, false)
 	// Fix first raw as it contains headers
@@ -32,12 +28,14 @@ func (s ImageListPage) Content(app *tview.Application, pages *tview.Pages, clien
 		SetBorderPadding(0, 0, 0, 0).
 		SetTitle("Hello")
 
-	// Fill with the data
-	listModel := model.Image{
-		OSClient: client,
+	if osc != nil {
+		// Fill with the data
+		listModel := model.Image{
+			OSClient: osc(),
+		}
+		table.SetTitle(fmt.Sprintf("[blue]Images[[red]%d[blue]]", len(listModel.RowData())))
+		tui.FillTable(table, listModel)
 	}
-	table.SetTitle(fmt.Sprintf("[blue]Images[[red]%d[blue]]", len(listModel.RowData())))
-	tui.FillTable(table, listModel)
 
 	// Configure Header component
 	header := component.Header{

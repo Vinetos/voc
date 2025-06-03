@@ -15,15 +15,11 @@ type ServerList struct {
 
 const ServerListPage = "server"
 
-func (s ServerList) Description() Description {
-	return Description{
-		Name:    ServerListPage,
-		Resize:  true,
-		Visible: false,
-	}
+func (s ServerList) Name() string {
+	return ServerListPage
 }
 
-func (s ServerList) Content(app *tview.Application, pages *tview.Pages, client *openstack.Client) tview.Primitive {
+func (s ServerList) Content(app *tview.Application, pages *tview.Pages, osc func() *openstack.Client) tview.Primitive {
 	// Configure the main table
 	table := tview.NewTable().SetSelectable(true, false)
 	// Fix first raw as it contains headers
@@ -33,7 +29,7 @@ func (s ServerList) Content(app *tview.Application, pages *tview.Pages, client *
 
 	// Fill with the data
 	serverListModel := model.Server{
-		OSClient: client,
+		OSClient: osc(),
 	}
 	table.SetTitle(fmt.Sprintf("[blue]Servers[[red]%d[blue]]", len(serverListModel.RowData())))
 
